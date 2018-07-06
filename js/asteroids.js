@@ -22,6 +22,8 @@ var ship = {
 var shots = [];
 var asteroids = [];
 
+var alive = true;
+
 function setup () {
     createCanvas(windowWidth, windowHeight);
     ship.width = 50;
@@ -40,22 +42,60 @@ function windowResized() {
 }
 
 function draw () {
-    background(55);
-    shoot();
-    drawAsteroids();
-    moveAsteroids();
-    loopAsteroids();
-    updateShip();
-    checkForCollisions();
+    if (alive === true && asteroids.length > 0) {
+        background(55);
+        shoot();
+        drawAsteroids();
+        moveAsteroids();
+        loopAsteroids();
+        checkForCollisions();
+        updateShip();
+    }
+    else if (asteroids.length === 0) {
+        win();
+        waitForSpaceBar();
+    }
+    else {
+        lose();
+        waitForSpaceBar();
+    }
 }
 
-function checkAsteroidCollisions (asteroid) {
-    shots.forEach(function (shot) {
-        if (shot.x >= asteroid.position.x
-            && shot.x <= asteroid.position.x + asteroid.width
-            && shot.y >= asteroid.position.y
-            && shot.y <= asteroid.position.y + asteroid.height) {
-                // DELETE ASTEROID
+function waitForSpaceBar() {
+
+}
+
+function win () {
+    alive = false;
+    background(255);
+    textSize(32);
+    textAlign("center");
+    fill(0,255,0);
+    text("You Win!", windowWidth/2, windowHeight/2);
+}
+
+function lose () {
+    background(255);
+    textSize(32);
+    textAlign("center");
+    fill(255,0,0);
+    text("You Lose!", windowWidth/2, windowHeight/2);
+}
+
+function checkAsteroidCollisions (asteroid, asteroidsIndex, asteroidsObject) {
+    if (ship.position.x >= asteroid.position.x - asteroid.width / 2
+        && ship.position.x <= asteroid.position.x + asteroid.width / 2
+        && ship.position.y >= asteroid.position.y - asteroid.height / 2
+        && ship.position.y <= asteroid.position.y + asteroid.height / 2) {
+            alive = false;
+        }
+    shots.forEach(function (shot, shotsIndex, shotsObject) {
+        if (shot.x >= asteroid.position.x - asteroid.width / 2
+            && shot.x <= asteroid.position.x + asteroid.width / 2
+            && shot.y >= asteroid.position.y - asteroid.height / 2
+            && shot.y <= asteroid.position.y + asteroid.height / 2) {
+                asteroidsObject.splice(asteroidsIndex, 1);
+                shotsObject.splice(shotsIndex, 1);
             }
     });
 }
@@ -154,7 +194,7 @@ function shoot () {
 }
 
 function keyPressed () {
-    if (key === " ") {
+    if (key === " " && alive === true) {
         shots.push(
             {
                 "x": ship.position.x + ship.width/2,
@@ -163,6 +203,16 @@ function keyPressed () {
             }
         );
     }
+    else if (key === " ") {
+        resetGame();
+    }
+}
+
+function resetGame () {
+    shots = [];
+    asteroids = [];
+    setup();
+    alive = true;
 }
 
 function arrowKeysPressed () {
