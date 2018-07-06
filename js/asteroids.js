@@ -1,6 +1,6 @@
 var ship = {
-    "width": 50,
-    "height": 50,
+    "width": 0,
+    "height": 0,
     "position": {
         "x": 0,
         "y": 0
@@ -10,18 +10,25 @@ var ship = {
         "y": 0
     },
     "acceleration": {
-        "x": 0.5,
-        "y": 0.5
+        "x": 0,
+        "y": 0
     },
     "rotate": {
-        "amount": 3.1415926535 / 4,
+        "amount": 0,
         "current": 0
     }
 };
 
 function setup () {
     createCanvas(windowWidth, windowHeight);
-    rectMode(CENTER);
+    ship.width = 50;
+    ship.height = 50;
+    ship.position.x = -ship.width/2 + windowWidth/2;
+    ship.position.y = ship.height/2 + windowHeight/2;
+    ship.rotate.amount = PI / 4;
+    ship.rotate.current = 180;
+    ship.acceleration.x = 0.5;
+    ship.acceleration.y = 0.5;
 }
 
 function windowResized() {
@@ -30,10 +37,12 @@ function windowResized() {
 
 function draw () {
     background(55);
-    moveShip();
-    translate(ship.position.x + ship.width, ship.position.y + ship.height);
+    var xMid = ship.position.x + ship.width/2;
+    var yMid = ship.position.y - ship.height/2;
+    translate(xMid, yMid);
     rotate(radians(ship.rotate.current));
     drawShip();
+    moveShip();
     loopShip();
     updateShipPosition();
 }
@@ -44,33 +53,35 @@ function updateShipPosition () {
 }
 
 function moveShip () {
-    if (keyIsDown(LEFT_ARROW))
+    if (keyIsDown(LEFT_ARROW)) {
         ship.rotate.current -= ship.rotate.amount;
-        // ship.velocity.x -= ship.acceleration.x;
-    if (keyIsDown(RIGHT_ARROW))
+    }
+    if (keyIsDown(RIGHT_ARROW)) {
         ship.rotate.current += ship.rotate.amount;
-        // ship.velocity.x += ship.acceleration.x;
-    if (keyIsDown(UP_ARROW))
-        ship.velocity.y -= ship.acceleration.y;
-    if (keyIsDown(DOWN_ARROW))
-        ship.velocity.y += ship.acceleration.y;
+    }
+    if (keyIsDown(UP_ARROW)) {
+        ship.velocity.y += ship.acceleration.y * cos(radians(ship.rotate.current));
+        ship.velocity.x -= ship.acceleration.x * sin(radians(ship.rotate.current));
+    }
+    if (keyIsDown(DOWN_ARROW)) {
+        ship.velocity.y -= ship.acceleration.y * cos(radians(ship.rotate.current));
+        ship.velocity.x += ship.acceleration.x * sin(radians(ship.rotate.current));
+    }
 }
 
 function loopShip () {
     if (ship.position.x > windowWidth)
         ship.position.x = -ship.width;
     else if (ship.position.x < -ship.width)
-        ship.position.x = windowWidth - 1;
+        ship.position.x = windowWidth;
     if (ship.position.y > windowHeight)
         ship.position.y = -ship.height;
     else if (ship.position.y < -ship.height)
-        ship.position.y = windowHeight - 1;
+        ship.position.y = windowHeight;
 }
 
 function drawShip() {
-    var xOffset = -ship.width;
-    var yOffset = -ship.height;
-    triangle(ship.position.x + xOffset, ship.position.y + yOffset,
-             ship.position.x + xOffset + ship.width, ship.position.y + yOffset,
-             ship.position.x + xOffset + ship.width / 2, ship.position.y + yOffset + ship.height);
+    var xOffset = -ship.width/2;
+    var yOffset = -ship.height/2;
+    triangle(xOffset, yOffset, xOffset + ship.width, yOffset, xOffset + ship.width/2, yOffset + ship.height);
 }
