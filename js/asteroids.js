@@ -53,16 +53,10 @@ function draw () {
     }
     else if (asteroids.length === 0) {
         win();
-        waitForSpaceBar();
     }
     else {
         lose();
-        waitForSpaceBar();
     }
-}
-
-function waitForSpaceBar() {
-
 }
 
 function win () {
@@ -209,6 +203,8 @@ function keyPressed () {
 }
 
 function resetGame () {
+    ship.velocity.x = 0;
+    ship.velocity.y = 0;
     shots = [];
     asteroids = [];
     setup();
