@@ -35,15 +35,15 @@ function setup () {
     ship.rotate.current = 180;
     ship.acceleration.x = 0.5;
     ship.acceleration.y = 0.5;
+    spawnStars();
     spawnAsteroids();
-    addStars();
 }
 
 function windowResized () {
   resizeCanvas(windowWidth, windowHeight);
 }
 
-function addStars () {
+function spawnStars () {
     for (var i = 0; i < random(100, 1000); ++i) {
         stars.push({
             "x": random(windowWidth),
@@ -52,12 +52,26 @@ function addStars () {
     }
 }
 
+function spawnAsteroids () {
+    for (var i = 0; i < random(5,10); ++i) {
+        asteroids.push({
+            "position": {
+                "x": random(windowWidth),
+                "y": random(windowHeight)
+            },
+            "width": random(100),
+            "height": random(100),
+            "angle": random(360)
+        });
+    }
+}
+
 function draw () {
     if (alive && asteroids.length > 0) {
         drawBackground();
-        shoot();
         updateAsteroids();
         checkForCollisions();
+        shoot();
         updateShip();
     }
     else if (asteroids.length === 0) {
@@ -68,10 +82,6 @@ function draw () {
     }
 }
 
-function drawStar (star) {
-    ellipse(star.x, star.y, 1, 1);
-}
-
 function drawBackground () {
     background(55);
     fill(255,255,0);
@@ -79,32 +89,52 @@ function drawBackground () {
     stars.forEach(drawStar);
 }
 
-function updateShip() {
-    var xMid = ship.position.x + ship.width/2;
-    var yMid = ship.position.y - ship.height/2;
-    translate(xMid, yMid);
-    rotate(radians(ship.rotate.current));
-    drawShip();
-    arrowKeysPressed();
-    loopShip();
-    moveShip();
+function drawStar (star) {
+    ellipse(star.x, star.y, 1, 1);
 }
 
-function drawShip() {
-    var xOffset = -ship.width/2;
-    var yOffset = -ship.height/2;
-    triangle(xOffset, yOffset, xOffset + ship.width, yOffset, xOffset + ship.width/2, yOffset + ship.height);
+function updateAsteroids () {
+    drawAsteroids();
+    moveAsteroids();
+    loopAsteroids();
 }
 
-function loopShip () {
-    if (ship.position.x > windowWidth)
-        ship.position.x = -ship.width;
-    else if (ship.position.x < -ship.width)
-        ship.position.x = windowWidth;
-    if (ship.position.y - ship.height > windowHeight)
-        ship.position.y = -ship.height;
-    else if (ship.position.y < -ship.height)
-        ship.position.y = windowHeight;
+function drawAsteroids () {
+    asteroids.forEach(drawAsteroid);
+}
+
+function drawAsteroid (asteroid) {
+    fill(110,110,110);
+    ellipse(asteroid.position.x, asteroid.position.y, asteroid.width, asteroid.height);
+    fill(255);
+}
+
+function moveAsteroids () {
+    asteroids.forEach(moveAsteroid);
+}
+
+function moveAsteroid (asteroid) {
+    asteroid.position.y += random(3) * cos(radians(asteroid.angle));
+    asteroid.position.x -= random(3) * sin(radians(asteroid.angle));
+}
+
+function loopAsteroids () {
+    asteroids.forEach(loopAsteroid);
+}
+
+function loopAsteroid (asteroid) {
+    if (asteroid.position.x > windowWidth)
+        asteroid.position.x = -asteroid.width;
+    else if (asteroid.position.x < -asteroid.width)
+        asteroid.position.x = windowWidth;
+    if (asteroid.position.y - asteroid.height > windowHeight)
+        asteroid.position.y = -asteroid.height;
+    else if (asteroid.position.y < -asteroid.height)
+        asteroid.position.y = windowHeight;
+}
+
+function checkForCollisions () {
+    asteroids.forEach(checkAsteroidCollisions);
 }
 
 function checkAsteroidCollisions (asteroid, asteroidsIndex, asteroidsObject) {
@@ -125,77 +155,13 @@ function checkAsteroidCollisions (asteroid, asteroidsIndex, asteroidsObject) {
     });
 }
 
-function checkForCollisions () {
-    asteroids.forEach(checkAsteroidCollisions);
+function shoot () {
+    drawShots();
+    moveShots();
 }
 
-function loopAsteroid (asteroid) {
-    if (asteroid.position.x > windowWidth)
-        asteroid.position.x = -asteroid.width;
-    else if (asteroid.position.x < -asteroid.width)
-        asteroid.position.x = windowWidth;
-    if (asteroid.position.y - asteroid.height > windowHeight)
-        asteroid.position.y = -asteroid.height;
-    else if (asteroid.position.y < -asteroid.height)
-        asteroid.position.y = windowHeight;
-}
-
-function updateAsteroids () {
-    drawAsteroids();
-    moveAsteroids();
-    loopAsteroids();
-}
-
-
-function loopAsteroids () {
-    asteroids.forEach(loopAsteroid);
-}
-
-function moveAsteroid (asteroid) {
-    asteroid.position.y += random(3) * cos(radians(asteroid.angle));
-    asteroid.position.x -= random(3) * sin(radians(asteroid.angle));
-}
-
-function moveAsteroids () {
-    asteroids.forEach(moveAsteroid);
-}
-
-function drawAsteroid (asteroid) {
-    fill(110,110,110);
-    ellipse(asteroid.position.x, asteroid.position.y, asteroid.width, asteroid.height);
-    fill(255);
-}
-
-function drawAsteroids () {
-    asteroids.forEach(drawAsteroid);
-}
-
-function spawnAsteroids () {
-    for (var i = 0; i < random(5,10); ++i) {
-        asteroids.push({
-            "position": {
-                "x": random(windowWidth),
-                "y": random(windowHeight)
-            },
-            "width": random(100),
-            "height": random(100),
-            "angle": random(360)
-        });
-    }
-}
-
-function moveShip () {
-    ship.position.x += ship.velocity.x;
-    ship.position.y += ship.velocity.y;
-}
-
-function moveShot (shot) {
-    shot.y += 5 * cos(radians(shot.angle));
-    shot.x -= 5 * sin(radians(shot.angle));
-}
-
-function moveShots () {
-    shots.forEach(moveShot);
+function drawShots () {
+    shots.forEach(drawShot);
 }
 
 function drawShot (shot) {
@@ -204,13 +170,63 @@ function drawShot (shot) {
     fill(255);
 }
 
-function drawShots () {
-    shots.forEach(drawShot);
+function moveShots () {
+    shots.forEach(moveShot);
 }
 
-function shoot () {
-    drawShots();
-    moveShots();
+function moveShot (shot) {
+    shot.y += 5 * cos(radians(shot.angle));
+    shot.x -= 5 * sin(radians(shot.angle));
+}
+
+function updateShip() {
+    var xMid = ship.position.x + ship.width/2;
+    var yMid = ship.position.y - ship.height/2;
+    translate(xMid, yMid);
+    rotate(radians(ship.rotate.current));
+    arrowKeysPressed();
+    drawShip();
+    loopShip();
+    moveShip();
+}
+
+function arrowKeysPressed () {
+    if (keyIsDown(LEFT_ARROW)) {
+        ship.rotate.current -= ship.rotate.amount;
+    }
+    if (keyIsDown(RIGHT_ARROW)) {
+        ship.rotate.current += ship.rotate.amount;
+    }
+    if (keyIsDown(UP_ARROW)) {
+        ship.velocity.y += ship.acceleration.y * cos(radians(ship.rotate.current));
+        ship.velocity.x -= ship.acceleration.x * sin(radians(ship.rotate.current));
+    }
+    if (keyIsDown(DOWN_ARROW)) {
+        ship.velocity.y -= ship.acceleration.y * cos(radians(ship.rotate.current));
+        ship.velocity.x += ship.acceleration.x * sin(radians(ship.rotate.current));
+    }
+}
+
+function drawShip() {
+    var xOffset = -ship.width/2;
+    var yOffset = -ship.height/2;
+    triangle(xOffset, yOffset, xOffset + ship.width, yOffset, xOffset + ship.width/2, yOffset + ship.height);
+}
+
+function loopShip () {
+    if (ship.position.x > windowWidth)
+        ship.position.x = -ship.width;
+    else if (ship.position.x < -ship.width)
+        ship.position.x = windowWidth;
+    if (ship.position.y - ship.height > windowHeight)
+        ship.position.y = -ship.height;
+    else if (ship.position.y < -ship.height)
+        ship.position.y = windowHeight;
+}
+
+function moveShip () {
+    ship.position.x += ship.velocity.x;
+    ship.position.y += ship.velocity.y;
 }
 
 function keyPressed () {
@@ -236,23 +252,6 @@ function resetGame () {
     stars = [];
     setup();
     alive = true;
-}
-
-function arrowKeysPressed () {
-    if (keyIsDown(LEFT_ARROW)) {
-        ship.rotate.current -= ship.rotate.amount;
-    }
-    if (keyIsDown(RIGHT_ARROW)) {
-        ship.rotate.current += ship.rotate.amount;
-    }
-    if (keyIsDown(UP_ARROW)) {
-        ship.velocity.y += ship.acceleration.y * cos(radians(ship.rotate.current));
-        ship.velocity.x -= ship.acceleration.x * sin(radians(ship.rotate.current));
-    }
-    if (keyIsDown(DOWN_ARROW)) {
-        ship.velocity.y -= ship.acceleration.y * cos(radians(ship.rotate.current));
-        ship.velocity.x += ship.acceleration.x * sin(radians(ship.rotate.current));
-    }
 }
 
 function win () {
