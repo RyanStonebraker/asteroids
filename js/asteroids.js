@@ -21,6 +21,7 @@ var ship = {
 
 var shots = [];
 var asteroids = [];
+var stars = [];
 
 var alive = true;
 
@@ -35,19 +36,27 @@ function setup () {
     ship.acceleration.x = 0.5;
     ship.acceleration.y = 0.5;
     spawnAsteroids();
+    addStars();
 }
 
-function windowResized() {
+function windowResized () {
   resizeCanvas(windowWidth, windowHeight);
 }
 
+function addStars () {
+    for (var i = 0; i < random(100, 1000); ++i) {
+        stars.push({
+            "x": random(windowWidth),
+            "y": random(windowHeight)
+        });
+    }
+}
+
 function draw () {
-    if (alive === true && asteroids.length > 0) {
-        background(55);
+    if (alive && asteroids.length > 0) {
+        drawBackground();
         shoot();
-        drawAsteroids();
-        moveAsteroids();
-        loopAsteroids();
+        updateAsteroids();
         checkForCollisions();
         updateShip();
     }
@@ -59,21 +68,43 @@ function draw () {
     }
 }
 
-function win () {
-    alive = false;
-    background(255);
-    textSize(32);
-    textAlign("center");
-    fill(0,255,0);
-    text("You Win!", windowWidth/2, windowHeight/2);
+function drawStar (star) {
+    ellipse(star.x, star.y, 1, 1);
 }
 
-function lose () {
-    background(255);
-    textSize(32);
-    textAlign("center");
-    fill(255,0,0);
-    text("You Lose!", windowWidth/2, windowHeight/2);
+function drawBackground () {
+    background(55);
+    fill(255,255,0);
+    noStroke();
+    stars.forEach(drawStar);
+}
+
+function updateShip() {
+    var xMid = ship.position.x + ship.width/2;
+    var yMid = ship.position.y - ship.height/2;
+    translate(xMid, yMid);
+    rotate(radians(ship.rotate.current));
+    drawShip();
+    arrowKeysPressed();
+    loopShip();
+    moveShip();
+}
+
+function drawShip() {
+    var xOffset = -ship.width/2;
+    var yOffset = -ship.height/2;
+    triangle(xOffset, yOffset, xOffset + ship.width, yOffset, xOffset + ship.width/2, yOffset + ship.height);
+}
+
+function loopShip () {
+    if (ship.position.x > windowWidth)
+        ship.position.x = -ship.width;
+    else if (ship.position.x < -ship.width)
+        ship.position.x = windowWidth;
+    if (ship.position.y - ship.height > windowHeight)
+        ship.position.y = -ship.height;
+    else if (ship.position.y < -ship.height)
+        ship.position.y = windowHeight;
 }
 
 function checkAsteroidCollisions (asteroid, asteroidsIndex, asteroidsObject) {
@@ -107,6 +138,12 @@ function loopAsteroid (asteroid) {
         asteroid.position.y = -asteroid.height;
     else if (asteroid.position.y < -asteroid.height)
         asteroid.position.y = windowHeight;
+}
+
+function updateAsteroids () {
+    drawAsteroids();
+    moveAsteroids();
+    loopAsteroids();
 }
 
 
@@ -147,17 +184,6 @@ function spawnAsteroids () {
     }
 }
 
-function updateShip() {
-    var xMid = ship.position.x + ship.width/2;
-    var yMid = ship.position.y - ship.height/2;
-    translate(xMid, yMid);
-    rotate(radians(ship.rotate.current));
-    drawShip();
-    arrowKeysPressed();
-    loopShip();
-    moveShip();
-}
-
 function moveShip () {
     ship.position.x += ship.velocity.x;
     ship.position.y += ship.velocity.y;
@@ -188,7 +214,7 @@ function shoot () {
 }
 
 function keyPressed () {
-    if (key === " " && alive === true) {
+    if (key === " " && alive) {
         shots.push(
             {
                 "x": ship.position.x + ship.width/2,
@@ -207,6 +233,7 @@ function resetGame () {
     ship.velocity.y = 0;
     shots = [];
     asteroids = [];
+    stars = [];
     setup();
     alive = true;
 }
@@ -228,19 +255,19 @@ function arrowKeysPressed () {
     }
 }
 
-function loopShip () {
-    if (ship.position.x > windowWidth)
-        ship.position.x = -ship.width;
-    else if (ship.position.x < -ship.width)
-        ship.position.x = windowWidth;
-    if (ship.position.y - ship.height > windowHeight)
-        ship.position.y = -ship.height;
-    else if (ship.position.y < -ship.height)
-        ship.position.y = windowHeight;
+function win () {
+    alive = false;
+    background(255);
+    textSize(32);
+    textAlign("center");
+    fill(0,255,0);
+    text("You Win!", windowWidth/2, windowHeight/2);
 }
 
-function drawShip() {
-    var xOffset = -ship.width/2;
-    var yOffset = -ship.height/2;
-    triangle(xOffset, yOffset, xOffset + ship.width, yOffset, xOffset + ship.width/2, yOffset + ship.height);
+function lose () {
+    background(255);
+    textSize(32);
+    textAlign("center");
+    fill(255,0,0);
+    text("You Lose!", windowWidth/2, windowHeight/2);
 }
