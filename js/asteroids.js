@@ -41,6 +41,8 @@ function setup () {
 
 function windowResized () {
   resizeCanvas(windowWidth, windowHeight);
+  stars = [];
+  spawnStars();
 }
 
 function spawnStars () {
