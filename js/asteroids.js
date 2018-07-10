@@ -61,8 +61,8 @@ function spawnAsteroids () {
                 "x": random(windowWidth),
                 "y": random(windowHeight)
             },
-            "width": random(100),
-            "height": random(100),
+            "width": random(20, 150),
+            "height": random(20, 150),
             "angle": random(360)
         });
     }
